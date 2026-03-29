@@ -75,12 +75,6 @@ document.querySelectorAll('.menu-item').forEach(item => {
                 else getWeatherData('Tunis');
             }
         }
-
-        // Update button text if it's the Day Selector
-        if (this.closest('#day-dropdown')) {
-            dayBtn.innerText = this.innerText + ' ▾';
-            dayDropdown.style.display = 'none';
-        }
     });
 });
 
@@ -90,6 +84,7 @@ document.querySelectorAll('.menu-item').forEach(item => {
 
 let currentCityResults = [];
 let activeLocation = null;
+let currentWeatherData = null;
 
 const statusContainer = document.getElementById('status-container');
 const statusContent = document.getElementById('status-content');
@@ -184,6 +179,7 @@ async function fetchAndDisplayWeather(locationObj) {
         if (!weatherRes.ok) throw new Error("Failed to fetch weather data");
         const weatherData = await weatherRes.json();
 
+        currentWeatherData = weatherData;
         updateUI(weatherData);
         hideStatus();
     } catch (error) {
@@ -296,40 +292,36 @@ function updateUI(data) {
     const mainIconEl = document.querySelector('.temp-main img');
     mainIconEl.src = `/assets/images/${mainIconName}`;
 
-    // Update 8 Hourly Slots (Taking the next 8 hours)
-    const hourlyList = document.querySelector('.hourly-list');
-    hourlyList.innerHTML = ""; // Clear placeholders
-
-    // Find current hour index
-    const now = new Date();
-    let startIndex = 0;
-    const nowTime = now.getTime();
+    // Populate Day Dropdown dynamically
+    const dayDropdown = document.getElementById('day-dropdown');
+    dayDropdown.innerHTML = '';
+    const fullDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     
-    for (let i = 0; i < data.hourly.time.length; i++) {
-        if (new Date(data.hourly.time[i]).getTime() >= nowTime) {
-            startIndex = i;
-            break;
-        }
-    }
-
-    for (let i = startIndex; i < startIndex + 8; i++) {
-        if (i >= data.hourly.time.length) break;
+    for (let i = 0; i < 7; i++) {
+        if (i >= data.daily.time.length) break;
+        const [y, m, d] = data.daily.time[i].split('-');
+        const date = new Date(y, m - 1, d);
+        const dayName = i === 0 ? 'Today' : fullDays[date.getDay()];
         
-        const time = new Date(data.hourly.time[i]).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const temp = Math.round(data.hourly.temperature_2m[i]);
-        const hIcon = getWeatherIcon(data.hourly.weather_code[i], data.hourly.is_day[i]);
+        const item = document.createElement('div');
+        item.className = `menu-item ${i === 0 ? 'active' : ''}`;
+        item.innerText = dayName;
+        item.dataset.index = i;
         
-        const row = document.createElement('div');
-        row.className = 'hourly-row';
-        row.innerHTML = `
-            <div class="hour-info">
-                <img src="/assets/images/${hIcon}" alt="" onerror="this.style.display='none'">
-                <span>${time}</span>
-            </div>
-            <span class="hour-temp">${temp}°</span>
-        `;
-        hourlyList.appendChild(row);
+        item.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dayDropdown.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById('day-toggle-btn').innerText = this.innerText + ' ▾';
+            dayDropdown.style.display = 'none';
+            renderHourlyForecast(parseInt(this.dataset.index));
+        });
+        
+        dayDropdown.appendChild(item);
     }
+    
+    document.getElementById('day-toggle-btn').innerText = 'Today ▾';
+    renderHourlyForecast(0);
 
     // Update 7-Day Forecast
     const dailyList = document.getElementById('daily-list');
@@ -359,6 +351,59 @@ function updateUI(data) {
         `;
         dailyList.appendChild(item);
     }
+}
+
+function renderHourlyForecast(dayIndex) {
+    if (!currentWeatherData) return;
+    const data = currentWeatherData;
+    const hourlyList = document.querySelector('.hourly-list');
+    hourlyList.innerHTML = ""; 
+
+    const targetDateString = data.daily.time[dayIndex];
+    
+    const dayIndices = [];
+    for (let i = 0; i < data.hourly.time.length; i++) {
+        if (data.hourly.time[i].startsWith(targetDateString)) {
+            dayIndices.push(i);
+        }
+    }
+
+    let displayIndices = [];
+    if (dayIndex === 0) {
+        const nowTime = new Date().getTime();
+        let startIndex = dayIndices[0];
+        for (let i of dayIndices) {
+            if (new Date(data.hourly.time[i]).getTime() >= nowTime) {
+                startIndex = i;
+                break;
+            }
+        }
+        for (let i = startIndex; i < startIndex + 8; i++) {
+            if (i < data.hourly.time.length) displayIndices.push(i);
+        }
+    } else {
+        for (let i = 0; i < 24; i += 3) {
+            if (dayIndices[i] !== undefined) displayIndices.push(dayIndices[i]);
+        }
+    }
+
+    displayIndices.forEach(i => {
+        const timeStr = data.hourly.time[i];
+        const time = new Date(timeStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const temp = Math.round(data.hourly.temperature_2m[i]);
+        const hIcon = getWeatherIcon(data.hourly.weather_code[i], data.hourly.is_day[i]);
+        
+        const row = document.createElement('div');
+        row.className = 'hourly-row';
+        row.innerHTML = `
+            <div class="hour-info">
+                <img src="/assets/images/${hIcon}" alt="" onerror="this.style.display='none'">
+                <span>${time}</span>
+            </div>
+            <span class="hour-temp">${temp}°</span>
+        `;
+        hourlyList.appendChild(row);
+    });
 }
 
 /**
