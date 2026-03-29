@@ -4,7 +4,9 @@
 const API_GEO = "https://geocoding-api.open-meteo.com/v1/search";
 const API_WEATHER = "https://api.open-meteo.com/v1/forecast";
 
-let currentUnit = "metric"; // 'metric' or 'imperial'
+let temperatureUnit = "celsius";
+let windSpeedUnit = "kmh";
+let precipitationUnit = "mm";
 
 // DOM Elements
 const unitsBtn = document.getElementById('units-toggle-btn');
@@ -63,13 +65,23 @@ document.querySelectorAll('.menu-item').forEach(item => {
             this.appendChild(checkSpan);
             
             // Handle unit change logic here if needed
-            if (this.innerText.includes('Fahrenheit')) {
-                currentUnit = 'imperial';
-                if (typeof activeLocation !== 'undefined' && activeLocation) fetchAndDisplayWeather(activeLocation);
-                else if (cityInput.value) getWeatherData(cityInput.value);
-                else getWeatherData('Tunis');
-            } else if (this.innerText.includes('Celsius')) {
-                currentUnit = 'metric';
+            const text = this.innerText;
+            let changed = false;
+            if (text.includes('Fahrenheit')) {
+                temperatureUnit = 'fahrenheit'; changed = true;
+            } else if (text.includes('Celsius')) {
+                temperatureUnit = 'celsius'; changed = true;
+            } else if (text.includes('mph')) {
+                windSpeedUnit = 'mph'; changed = true;
+            } else if (text.includes('km/h')) {
+                windSpeedUnit = 'kmh'; changed = true;
+            } else if (text.includes('Millimeters')) {
+                precipitationUnit = 'mm'; changed = true;
+            } else if (text.includes('Inches')) {
+                precipitationUnit = 'inch'; changed = true;
+            }
+            
+            if (changed) {
                 if (typeof activeLocation !== 'undefined' && activeLocation) fetchAndDisplayWeather(activeLocation);
                 else if (cityInput.value) getWeatherData(cityInput.value);
                 else getWeatherData('Tunis');
@@ -249,9 +261,7 @@ async function fetchAndDisplayWeather(locationObj) {
         document.getElementById('current-date').innerText = new Date().toLocaleDateString('en-US', dateOptions);
 
         // Step 2: Get Weather using Coordinates
-        const unitParams = currentUnit === "metric" 
-            ? "temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm"
-            : "temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch";
+        const unitParams = `temperature_unit=${temperatureUnit}&wind_speed_unit=${windSpeedUnit}&precipitation_unit=${precipitationUnit}`;
 
         const weatherUrl = `${API_WEATHER}?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,wind_speed_10m,weather_code,is_day&hourly=temperature_2m,weather_code,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&${unitParams}`;
         
@@ -364,8 +374,8 @@ function updateUI(data) {
     document.getElementById('main-temp').innerText = `${Math.round(current.temperature_2m)}°`;
     document.getElementById('feels-like').innerText = `${Math.round(current.apparent_temperature)}°`;
     document.getElementById('humidity').innerText = `${current.relative_humidity_2m}%`;
-    document.getElementById('wind').innerText = `${current.wind_speed_10m} ${currentUnit === 'metric' ? 'km/h' : 'mph'}`;
-    document.getElementById('precip').innerText = `${current.precipitation} ${currentUnit === 'metric' ? 'mm' : 'in'}`;
+    document.getElementById('wind').innerText = `${current.wind_speed_10m} ${windSpeedUnit === 'kmh' ? 'km/h' : 'mph'}`;
+    document.getElementById('precip').innerText = `${current.precipitation} ${precipitationUnit === 'mm' ? 'mm' : 'in'}`;
 
     // Update Hero Icon and Background State
     const mainIconName = updateWeatherState(current.weather_code, current.is_day);
