@@ -294,7 +294,7 @@ function updateUI(data) {
     // Update Hero Icon and Background State
     const mainIconName = updateWeatherState(current.weather_code, current.is_day);
     const mainIconEl = document.querySelector('.temp-main img');
-    mainIconEl.src = `assets/images/${mainIconName}`;
+    mainIconEl.src = `/assets/images/${mainIconName}`;
 
     // Update 8 Hourly Slots (Taking the next 8 hours)
     const hourlyList = document.querySelector('.hourly-list');
@@ -323,7 +323,7 @@ function updateUI(data) {
         row.className = 'hourly-row';
         row.innerHTML = `
             <div class="hour-info">
-                <img src="assets/images/${hIcon}" alt="" onerror="this.style.display='none'">
+                <img src="/assets/images/${hIcon}" alt="" onerror="this.style.display='none'">
                 <span>${time}</span>
             </div>
             <span class="hour-temp">${temp}°</span>
@@ -351,7 +351,7 @@ function updateUI(data) {
         item.className = 'daily-item';
         item.innerHTML = `
             <span class="day">${dayName}</span>
-            <img src="assets/images/${dIcon}" alt="" onerror="this.style.display='none'">
+            <img src="/assets/images/${dIcon}" alt="" onerror="this.style.display='none'">
             <div class="range">
                 <span class="max">${max}°</span>
                 <span class="min">${min}°</span>
