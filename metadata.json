@@ -1,0 +1,5 @@
+{
+  "name": "Weather Now",
+  "description": "A weather application displaying current weather, hourly, and daily forecasts.",
+  "requestFramePermissions": []
+}

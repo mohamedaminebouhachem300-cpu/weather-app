@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png">
+    <title>Weather Now</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="top-header">
+            <div class="logo">
+                <img src="assets/images/logo.svg" alt="Weather Now" onerror="this.style.display='none'">
+            </div>
+            <div class="dropdown-container">
+                <button class="icon-btn" id="units-toggle-btn">
+                    <img src="assets/images/icon-settings.svg" alt="" onerror="this.style.display='none'"> Units ▾
+                </button>
+                <div class="dropdown-menu" id="units-dropdown">
+                    <p class="menu-label">Switch to Imperial</p>
+                    <div class="menu-section">
+                        <span>Temperature</span>
+                        <div class="menu-item active">Celsius (°C) <span class="check">✓</span></div>
+                        <div class="menu-item">Fahrenheit (°F)</div>
+                    </div>
+                    <div class="menu-section">
+                        <span>Wind Speed</span>
+                        <div class="menu-item active">km/h <span class="check">✓</span></div>
+                        <div class="menu-item">mph</div>
+                    </div>
+                    <div class="menu-section">
+                        <span>Precipitation</span>
+                        <div class="menu-item active">Millimeters (mm) <span class="check">✓</span></div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <section class="search-section centered">
+            <h1>How’s the sky looking today?</h1>
+            <div class="search-wrapper">
+                <img src="assets/images/icon-search.svg" alt="Search" class="search-icon" onerror="this.style.display='none'">
+                <input type="text" id="city-input" placeholder="Search for a place...">
+                <button id="search-btn" class="search-btn">Search</button>
+            </div>
+        </section>
+
+        <div class="dashboard-layout">
+            <div id="status-container" class="status-container" style="display: none;">
+                <div id="status-content"></div>
+            </div>
+            <main class="main-content" id="main-dashboard">
+                <section class="hero-card">
+                    <img src="assets/images/bg-today-large.svg" alt="" class="hero-bg-img" onerror="this.style.display='none'">
+                    <div class="hero-content">
+                        <div class="location-details">
+                            <div class="city-display-wrapper">
+                                <h2 id="current-city">
+                                    <span id="city-name-part">Berlin</span><span id="comma-part">, </span>
+                                    <span id="country-name-part">Germany</span>
+                                </h2>
+                                <div class="dropdown-menu" id="city-results-dropdown"></div>
+                            </div>
+                            <p id="current-date">Tuesday, Aug 5, 2025</p>
+                        </div>
+                        <div class="temp-main">
+                            <img src="assets/images/icon-sunny.webp" alt="Sunny" onerror="this.style.display='none'">
+                            <span id="main-temp">20°</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="stats-grid">
+                    <div class="stat-box"><span>Feels Like</span><p id="feels-like">18°</p></div>
+                    <div class="stat-box"><span>Humidity</span><p id="humidity">46%</p></div>
+                    <div class="stat-box"><span>Wind</span><p id="wind">14 km/h</p></div>
+                    <div class="stat-box"><span>Precipitation</span><p id="precip">0 mm</p></div>
+                </section>
+
+                <section class="daily-forecast">
+                    <h3>Daily forecast</h3>
+                    <div class="daily-list" id="daily-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </section>
+            </main>
+
+            <aside class="hourly-sidebar" id="hourly-sidebar">
+                <div class="sidebar-header">
+                    <h3>Hourly forecast</h3>
+                    <div class="dropdown-container">
+                        <button class="day-select-btn" id="day-toggle-btn">Tuesday ▾</button>
+                        <div class="dropdown-menu" id="day-dropdown">
+                            <div class="menu-item">Monday</div>
+                            <div class="menu-item active">Tuesday</div>
+                            <div class="menu-item">Wednesday</div>
+                            <div class="menu-item">Thursday</div>
+                            <div class="menu-item">Friday</div>
+                            <div class="menu-item">Saturday</div>
+                            <div class="menu-item">Sunday</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="hourly-list">
+                    <!-- Populated by JS -->
+                </div>
+            </aside>
+        </div>
+    </div>
+    <script type="module" src="/scripts.js"></script>
+</body>
+</html>
+
