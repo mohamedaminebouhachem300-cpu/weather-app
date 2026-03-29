@@ -115,24 +115,104 @@ function hideStatus() {
 }
 
 function retryLastAction() {
-    if (cityInput.value) getWeatherData(cityInput.value);
+    if (cityInput.value) getWeatherData(cityInput.value, true);
     else if (activeLocation) fetchAndDisplayWeather(activeLocation);
 }
 
-async function getWeatherData(cityName) {
+async function fetchGeocodingResults(query) {
+    try {
+        let results = [];
+        const res = await fetch(`${API_GEO}?name=${encodeURIComponent(query)}&count=10&language=en&format=json`);
+        const data = await res.json();
+        
+        if (data.results && data.results.length > 0) {
+            results = data.results;
+        } else {
+            // Fuzzy search fallback using Wikipedia OpenSearch
+            try {
+                const wikiRes = await fetch(`https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(query)}&limit=5&origin=*`);
+                const wikiData = await wikiRes.json();
+                if (wikiData[1] && wikiData[1].length > 0) {
+                    const suggestions = wikiData[1];
+                    const tried = new Set();
+                    for (let i = 0; i < suggestions.length; i++) {
+                        let suggestion = suggestions[i];
+                        // Clean up suggestion
+                        suggestion = suggestion.split(',')[0].split(' (')[0].replace(/ Governorate| Province| State| City| District/gi, '').trim();
+                        
+                        if (tried.has(suggestion.toLowerCase())) continue;
+                        tried.add(suggestion.toLowerCase());
+
+                        const altGeoRes = await fetch(`${API_GEO}?name=${encodeURIComponent(suggestion)}&count=5&language=en&format=json`);
+                        const altGeoData = await altGeoRes.json();
+                        if (altGeoData.results && altGeoData.results.length > 0) {
+                            results = results.concat(altGeoData.results);
+                        }
+                        if (results.length >= 5) break;
+                    }
+                    
+                    // Remove duplicates by id
+                    if (results.length > 0) {
+                        const uniqueResults = [];
+                        const seenIds = new Set();
+                        for (const res of results) {
+                            if (!seenIds.has(res.id)) {
+                                seenIds.add(res.id);
+                                uniqueResults.push(res);
+                            }
+                        }
+                        results = uniqueResults;
+                    }
+                }
+            } catch (e) {
+                console.error("Fuzzy search fallback failed", e);
+            }
+        }
+        return results;
+    } catch (error) {
+        console.error("Error fetching geocoding results:", error);
+        return [];
+    }
+}
+
+async function getWeatherData(cityName, autoSelectFirst = false) {
     showStatus('loading', 'Searching for city...');
     try {
-        // Step 1: Get Coordinates from City Name (fetch up to 10 for disambiguation)
-        const geoRes = await fetch(`${API_GEO}?name=${cityName}&count=10&language=en&format=json`);
-        const geoData = await geoRes.json();
+        const results = await fetchGeocodingResults(cityName);
 
-        if (!geoData.results || geoData.results.length === 0) {
+        if (!results || results.length === 0) {
             showStatus('empty', 'No search result found!', true);
             return;
         }
 
-        currentCityResults = geoData.results;
-        await fetchAndDisplayWeather(currentCityResults[0]);
+        currentCityResults = results;
+        
+        if (currentCityResults.length === 1 || autoSelectFirst) {
+            await fetchAndDisplayWeather(currentCityResults[0]);
+        } else {
+            hideStatus();
+            const searchSuggestions = document.getElementById('search-suggestions');
+            searchSuggestions.innerHTML = '';
+            currentCityResults.forEach(result => {
+                const item = document.createElement('div');
+                item.className = 'suggestion-item';
+                const regionHtml = result.admin1 ? `<div class="suggestion-region">${result.admin1}</div>` : '';
+                item.innerHTML = `
+                    <div class="suggestion-main">
+                        <span class="suggestion-name">${result.name}</span>
+                        <span class="suggestion-country">${result.country}</span>
+                    </div>
+                    ${regionHtml}
+                `;
+                item.addEventListener('click', () => {
+                    cityInput.value = result.name;
+                    searchSuggestions.style.display = 'none';
+                    fetchAndDisplayWeather(result);
+                });
+                searchSuggestions.appendChild(item);
+            });
+            searchSuggestions.style.display = 'flex';
+        }
 
     } catch (error) {
         console.error("Error fetching weather:", error);
@@ -410,6 +490,59 @@ function renderHourlyForecast(dayIndex) {
  * 5. EVENT LISTENERS
  */
 
+const searchSuggestions = document.getElementById('search-suggestions');
+let searchTimeout;
+
+cityInput.addEventListener('input', (e) => {
+    clearTimeout(searchTimeout);
+    const query = e.target.value.trim();
+    if (query.length < 2) {
+        searchSuggestions.style.display = 'none';
+        return;
+    }
+    
+    searchTimeout = setTimeout(async () => {
+        try {
+            const results = await fetchGeocodingResults(query);
+            
+            if (results && results.length > 0) {
+                searchSuggestions.innerHTML = '';
+                results.forEach(result => {
+                    const item = document.createElement('div');
+                    item.className = 'suggestion-item';
+                    const regionHtml = result.admin1 ? `<div class="suggestion-region">${result.admin1}</div>` : '';
+                    item.innerHTML = `
+                        <div class="suggestion-main">
+                            <span class="suggestion-name">${result.name}</span>
+                            <span class="suggestion-country">${result.country}</span>
+                        </div>
+                        ${regionHtml}
+                    `;
+                    item.addEventListener('click', () => {
+                        cityInput.value = result.name;
+                        searchSuggestions.style.display = 'none';
+                        fetchAndDisplayWeather(result);
+                    });
+                    searchSuggestions.appendChild(item);
+                });
+                searchSuggestions.style.display = 'flex';
+            } else {
+                searchSuggestions.innerHTML = '<div class="suggestion-item" style="text-align: center; color: var(--text-gray); font-size: 0.85rem;">No results found</div>';
+                searchSuggestions.style.display = 'flex';
+            }
+        } catch (err) {
+            console.error("Error fetching suggestions:", err);
+        }
+    }, 300);
+});
+
+// Close suggestions on outside click
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.search-wrapper')) {
+        if (searchSuggestions) searchSuggestions.style.display = 'none';
+    }
+});
+
 searchBtn.addEventListener('click', () => {
     if (cityInput.value) getWeatherData(cityInput.value);
 });
@@ -420,5 +553,5 @@ cityInput.addEventListener('keypress', (e) => {
 
 // Initial Load
 window.addEventListener('load', () => {
-    getWeatherData('Tunis'); // Default city
+    getWeatherData('Tunis', true); // Default city
 });
