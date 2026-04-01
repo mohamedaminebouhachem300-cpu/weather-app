@@ -263,7 +263,7 @@ async function fetchAndDisplayWeather(locationObj) {
         // Step 2: Get Weather using Coordinates
         const unitParams = `temperature_unit=${temperatureUnit}&wind_speed_unit=${windSpeedUnit}&precipitation_unit=${precipitationUnit}`;
 
-        const weatherUrl = `${API_WEATHER}?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,wind_speed_10m,weather_code,is_day&hourly=temperature_2m,weather_code,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&${unitParams}`;
+        const weatherUrl = `${API_WEATHER}?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,weather_code,is_day&hourly=temperature_2m,weather_code,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto&${unitParams}`;
         
         const weatherRes = await fetch(weatherUrl);
         if (!weatherRes.ok) throw new Error("Failed to fetch weather data");
@@ -375,7 +375,7 @@ function updateUI(data) {
     document.getElementById('feels-like').innerText = `${Math.round(current.apparent_temperature)}°`;
     document.getElementById('humidity').innerText = `${current.relative_humidity_2m}%`;
     document.getElementById('wind').innerText = `${current.wind_speed_10m} ${windSpeedUnit === 'kmh' ? 'km/h' : 'mph'}`;
-    document.getElementById('precip').innerText = `${current.precipitation} ${precipitationUnit === 'mm' ? 'mm' : 'in'}`;
+    document.getElementById('precip').innerText = `${data.daily.precipitation_sum[0] || 0} ${precipitationUnit === 'mm' ? 'mm' : 'in'}`;
 
     // Update Hero Icon and Background State
     const mainIconName = updateWeatherState(current.weather_code, current.is_day);
