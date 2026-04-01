@@ -328,16 +328,16 @@ function getWeatherIcon(code, isDay = 1) {
     const snowCodes = [71, 73, 75, 77, 85, 86];
     const stormCodes = [95, 96, 99];
 
-    if (sunnyCodes.includes(code)) return 'icon-sunny.webp';
-    if (partlyCloudyCodes.includes(code)) return 'icon-partly-cloudy.webp';
-    if (cloudyCodes.includes(code)) return 'icon-overcast.webp';
-    if (fogCodes.includes(code)) return 'icon-fog.webp';
-    if (drizzleCodes.includes(code)) return 'icon-drizzle.webp';
-    if (rainCodes.includes(code)) return 'icon-rain.webp';
-    if (stormCodes.includes(code)) return 'icon-storm.webp';
-    if (snowCodes.includes(code)) return 'icon-snow.webp';
+    if (sunnyCodes.includes(code)) return isDay ? 'icon-sunny.webp' : 'icon-clear-night.webp';
+    if (partlyCloudyCodes.includes(code)) return isDay ? 'icon-partly-cloudy.webp' : 'icon-partly-cloudy-night.webp';
+    if (cloudyCodes.includes(code)) return isDay ? 'icon-overcast.webp' : 'icon-overcast-night.webp';
+    if (fogCodes.includes(code)) return isDay ? 'icon-fog.webp' : 'icon-fog-night.webp';
+    if (drizzleCodes.includes(code)) return isDay ? 'icon-drizzle.webp' : 'icon-drizzle-night.webp';
+    if (rainCodes.includes(code)) return isDay ? 'icon-rain.webp' : 'icon-rain-night.webp';
+    if (stormCodes.includes(code)) return isDay ? 'icon-storm.webp' : 'icon-storm-night.webp';
+    if (snowCodes.includes(code)) return isDay ? 'icon-snow.webp' : 'icon-snow-night.webp';
     
-    return 'icon-sunny.webp'; // fallback
+    return isDay ? 'icon-sunny.webp' : 'icon-clear-night.webp'; // fallback
 }
 
 function updateWeatherState(code, isDay) {
@@ -433,7 +433,7 @@ function updateUI(data) {
         item.className = 'daily-item';
         item.innerHTML = `
             <span class="day">${dayName}</span>
-            <img src="/assets/images/${dIcon}" alt="" onerror="this.style.display='none'">
+            <img src="/assets/images/${dIcon}" alt="">
             <div class="range">
                 <span class="max">${max}°</span>
                 <span class="min">${min}°</span>
@@ -487,7 +487,7 @@ function renderHourlyForecast(dayIndex) {
         row.className = 'hourly-row';
         row.innerHTML = `
             <div class="hour-info">
-                <img src="/assets/images/${hIcon}" alt="" onerror="this.style.display='none'">
+                <img src="/assets/images/${hIcon}" alt="">
                 <span>${time}</span>
             </div>
             <span class="hour-temp">${temp}°</span>
