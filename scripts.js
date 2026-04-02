@@ -328,16 +328,16 @@ function getWeatherIcon(code, isDay = 1) {
     const snowCodes = [71, 73, 75, 77, 85, 86];
     const stormCodes = [95, 96, 99];
 
-    if (sunnyCodes.includes(code)) return isDay ? 'icon-sunny.webp' : 'icon-clear-night.webp';
-    if (partlyCloudyCodes.includes(code)) return isDay ? 'icon-partly-cloudy.webp' : 'icon-partly-cloudy-night.webp';
-    if (cloudyCodes.includes(code)) return isDay ? 'icon-overcast.webp' : 'icon-overcast-night.webp';
-    if (fogCodes.includes(code)) return isDay ? 'icon-fog.webp' : 'icon-fog-night.webp';
-    if (drizzleCodes.includes(code)) return isDay ? 'icon-drizzle.webp' : 'icon-drizzle-night.webp';
-    if (rainCodes.includes(code)) return isDay ? 'icon-rain.webp' : 'icon-rain-night.webp';
-    if (stormCodes.includes(code)) return isDay ? 'icon-storm.webp' : 'icon-storm-night.webp';
-    if (snowCodes.includes(code)) return isDay ? 'icon-snow.webp' : 'icon-snow-night.webp';
+    if (sunnyCodes.includes(code)) return isDay ? 'icon-sunny.webp' : 'icon-sunny.webp';
+    if (partlyCloudyCodes.includes(code)) return isDay ? 'icon-partly-cloudy.webp' : 'icon-partly-cloudy.webp';
+    if (cloudyCodes.includes(code)) return 'icon-overcast.webp';
+    if (fogCodes.includes(code)) return 'icon-fog.webp';
+    if (drizzleCodes.includes(code)) return 'icon-drizzle.webp';
+    if (rainCodes.includes(code)) return 'icon-rain.webp';
+    if (stormCodes.includes(code)) return 'icon-storm.webp';
+    if (snowCodes.includes(code)) return 'icon-snow.webp';
     
-    return isDay ? 'icon-sunny.webp' : 'icon-clear-night.webp'; // fallback
+    return 'icon-sunny.webp'; // fallback
 }
 
 function updateWeatherState(code, isDay) {
@@ -379,8 +379,13 @@ function updateUI(data) {
 
     // Update Hero Icon and Background State
     const mainIconName = updateWeatherState(current.weather_code, current.is_day);
-    const mainIconEl = document.querySelector('.temp-main img');
-    mainIconEl.src = `/assets/images/${mainIconName}`;
+    const tempMain = document.querySelector('.temp-main');
+    if (tempMain) {
+        tempMain.innerHTML = `
+            <img src="./assets/${mainIconName}" alt="Weather" id="main-weather-icon" class="weather-icon-large">
+            <span id="main-temp">${Math.round(current.temperature_2m)}°</span>
+        `;
+    }
 
     // Populate Day Dropdown dynamically
     const dayDropdown = document.getElementById('day-dropdown');
@@ -433,7 +438,7 @@ function updateUI(data) {
         item.className = 'daily-item';
         item.innerHTML = `
             <span class="day">${dayName}</span>
-            <img src="/assets/images/${dIcon}" alt="">
+            <img src="./assets/${dIcon}" alt="" class="weather-icon-medium">
             <div class="range">
                 <span class="max">${max}°</span>
                 <span class="min">${min}°</span>
@@ -441,7 +446,7 @@ function updateUI(data) {
         `;
         dailyList.appendChild(item);
     }
-}
+    }
 
 function renderHourlyForecast(dayIndex) {
     if (!currentWeatherData) return;
@@ -487,14 +492,14 @@ function renderHourlyForecast(dayIndex) {
         row.className = 'hourly-row';
         row.innerHTML = `
             <div class="hour-info">
-                <img src="/assets/images/${hIcon}" alt="">
+                <img src="./assets/${hIcon}" alt="" class="weather-icon-small">
                 <span>${time}</span>
             </div>
             <span class="hour-temp">${temp}°</span>
         `;
         hourlyList.appendChild(row);
     });
-}
+    }
 
 /**
  * 5. EVENT LISTENERS
@@ -563,5 +568,5 @@ cityInput.addEventListener('keypress', (e) => {
 
 // Initial Load
 window.addEventListener('load', () => {
-    getWeatherData('Tunis', true); // Default city
+        getWeatherData('Tunis', true); // Default city
 });
