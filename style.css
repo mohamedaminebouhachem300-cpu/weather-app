@@ -177,9 +177,9 @@ body { background-color: var(--bg-color); color: var(--text-white); min-height: 
 .logo-icon { width: 24px; height: 24px; }
 .settings-icon { width: 18px; height: 18px; }
 .search-icon { width: 20px; height: 20px; margin: 0 15px; color: var(--text-gray); }
-.weather-icon-large { width: 80px; height: 80px; }
-.weather-icon-medium { width: 45px; height: 45px; margin: 15px 0; }
-.weather-icon-small { width: 26px; height: 26px; }
+.weather-icon-large { width: 80px; height: 80px; display: inline-block; }
+.weather-icon-medium { width: 45px; height: 45px; margin: 15px 0; display: inline-block; }
+.weather-icon-small { width: 26px; height: 26px; display: inline-block; }
 
 /* Weather Icon Animations */
 @keyframes float {

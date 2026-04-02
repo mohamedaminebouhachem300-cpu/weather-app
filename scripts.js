@@ -382,7 +382,7 @@ function updateUI(data) {
     const tempMain = document.querySelector('.temp-main');
     if (tempMain) {
         tempMain.innerHTML = `
-            <img src="/assets/${mainIconName}" alt="Weather" id="main-weather-icon" class="weather-icon-large">
+            <img src="./assets/${mainIconName}" alt="Weather" id="main-weather-icon" class="weather-icon-large">
             <span id="main-temp">${Math.round(current.temperature_2m)}°</span>
         `;
     }
@@ -438,7 +438,7 @@ function updateUI(data) {
         item.className = 'daily-item';
         item.innerHTML = `
             <span class="day">${dayName}</span>
-            <img src="/assets/${dIcon}" alt="" class="weather-icon-medium">
+            <img src="./assets/${dIcon}" alt="" class="weather-icon-medium">
             <div class="range">
                 <span class="max">${max}°</span>
                 <span class="min">${min}°</span>
@@ -492,7 +492,7 @@ function renderHourlyForecast(dayIndex) {
         row.className = 'hourly-row';
         row.innerHTML = `
             <div class="hour-info">
-                <img src="/assets/${hIcon}" alt="" class="weather-icon-small">
+                <img src="./assets/${hIcon}" alt="" class="weather-icon-small">
                 <span>${time}</span>
             </div>
             <span class="hour-temp">${temp}°</span>

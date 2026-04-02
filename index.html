@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon32x32.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./assets/favicon32x32.png">
     <title>Weather Now</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -14,11 +14,11 @@
     <div class="app-container">
         <header class="top-header">
             <div class="logo">
-                <img src="/assets/logo.svg" alt="Weather Now">
+                <img src="./assets/logo.svg" alt="Weather Now" class="logo-icon">
             </div>
             <div class="dropdown-container">
                 <button class="icon-btn" id="units-toggle-btn">
-                    <img src="/assets/icon-units.svg" alt=""> Units ▾
+                    <img src="./assets/icon-units.svg" alt="" class="settings-icon"> Units ▾
                 </button>
                 <div class="dropdown-menu" id="units-dropdown">
                     <p class="menu-label">Customize Units</p>
@@ -44,7 +44,7 @@
         <section class="search-section centered">
             <h1>How’s the sky looking today?</h1>
             <div class="search-wrapper" style="position: relative;">
-                <img src="/assets/icon-search.svg" alt="Search" class="search-icon">
+                <img src="./assets/icon-search.svg" alt="Search" class="search-icon">
                 <input type="text" id="city-input" placeholder="Search for a place..." autocomplete="off">
                 <button id="search-btn" class="search-btn">Search</button>
                 <div id="search-suggestions" class="dropdown-menu" style="display: none; top: 100%; left: 0; width: 100%; margin-top: 8px;"></div>
@@ -57,7 +57,7 @@
             </div>
             <main class="main-content" id="main-dashboard">
                 <section class="hero-card">
-                    <img src="/assets/bg-today-large.svg" alt="" class="hero-bg-img">
+                    <img src="./assets/bg-today-large.svg" alt="" class="hero-bg-img">
                     <div class="hero-content">
                         <div class="location-details">
                             <div class="city-display-wrapper">
@@ -70,7 +70,7 @@
                             <p id="current-date">Tuesday, Aug 5, 2025</p>
                         </div>
                         <div class="temp-main">
-                            <img src="/assets/icon-sunny.webp" alt="Sunny" class="weather-icon-large">
+                            <img src="./assets/icon-sunny.webp" alt="Sunny" class="weather-icon-large">
                             <span id="main-temp">20°</span>
                         </div>
                     </div>
@@ -113,7 +113,7 @@
             </aside>
         </div>
     </div>
-    <script type="module" src="/scripts.js"></script>
+    <script type="module" src="./scripts.js"></script>
 </body>
 </html>
 
